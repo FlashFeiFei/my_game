@@ -2,6 +2,17 @@ package room
 
 import protoc_room "github.com/my_game/module/room"
 
+func init() {
+	if room == nil {
+		room = NewRoom()
+
+		//房间跑起来
+		go room.Run()
+	}
+}
+
+var room *Room
+
 //房间
 type Room struct {
 	MaxCount  uint32           //房间最大人数
@@ -39,9 +50,14 @@ func (r *Room) AddBroadcast() chan<- Event {
 	return r.broadcast
 }
 
-//房间当前人数
-func (r *Room) CurrentCount() int {
-	return len(r.playerMap)
+//是否满人
+func (r *Room) IsMaxCount() bool {
+
+	if len(r.playerMap) < int(r.MaxCount) {
+		return false
+	}
+
+	return true
 }
 
 //运行房间
