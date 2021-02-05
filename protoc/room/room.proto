@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+//protobuf的命名空间
+package my_game.protoc.room;
+
+import  public "user/user.proto";
+
+//golang编译出go文件的package命名空间
+option go_package = "github.com/my_game/module/room";
+
+
+//房间实体
+message Room {
+  uint64 id = 1;   //房间id
+  uint32 status = 2; //状态,0:空闲中，1:满人,2:房间被锁住
+}
+
+
+
+//刷新房间的人员数
+message RefreshRoomPlayersEvent {
+  Room room = 1;  //房间
+  repeated   my_game.protoc.user.Player playerList = 2;  //正在房间的人
+  my_game.protoc.user.Player player = 3;   //申请人
+}
+
+//用户加入房间的事件
+message JoinEvent {
+  Room room = 1;   //加入的房间
+  my_game.protoc.user.Player player = 2;   //新加入房间的用户
+}
+
+//离开房间的消息
+message LeaveEvent {
+  my_game.protoc.user.Player player = 1;   //离开房间的用户
+}
+
+
+//房间的流请求
+message RoomStreamRequest {
+  oneof Event {
+    //事件
+    RefreshRoomPlayersEvent roomPlayersEvent = 1;
+    JoinEvent joinEvent = 2;
+    LeaveEvent leaveEvent = 3;
+  }
+}
+
+//房间的流响应
+message RoomStreamResponse {
+  oneof Event {
+    //事件
+    RefreshRoomPlayersEvent roomPlayersEvent = 1;
+    JoinEvent joinEvent = 2;
+    LeaveEvent leaveEvent = 3;
+  }
+}
+
+//房间的grpc
+service RoomGrpc {
+  //房间的流请求
+  rpc Room(stream RoomStreamRequest) returns(stream RoomStreamResponse);
+}

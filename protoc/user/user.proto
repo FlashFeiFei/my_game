@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package my_game.protoc.user;
+
+//golang编译出go文件的package命名空间
+option go_package = "github.com/my_game/module/user";
+
+//用户
+message User {
+  uint64 id = 1;       //游戏玩家唯一id
+  string phone = 2;    //手机号
+  string password = 3; //密码
+}
+
+//玩家
+message Player {
+  User user = 1;
+}
+
+
+//机器人，服务之间鉴权用的
+message Robot {
+  string account = 1;  //账号
+  string password = 2; //密码
+}
