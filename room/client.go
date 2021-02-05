@@ -3,6 +3,7 @@ package room
 import (
 	protoc_room "github.com/my_game/module/room"
 	"io"
+	"log"
 )
 
 //玩家
@@ -39,6 +40,11 @@ func (c *Client) GetPlayer() protoc_room.Player {
 
 //关闭玩家的资源
 func (c *Client) Close() {
+	defer func() {
+		recover()
+	}()
+
+	log.Println(c.room.playerMap)
 	close(c.send) //关闭玩家开启的send chan
 }
 

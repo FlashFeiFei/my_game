@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/game/room"
-	protoc_room "github.com/game/room/protoc/room"
+	protoc_room "github.com/my_game/module/room"
+	"github.com/my_game/room"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -19,7 +19,7 @@ func roomServer() {
 	var opts []grpc.ServerOption
 
 	grpcServer := grpc.NewServer(opts...)
-	protoc_room.RegisterRoomServiceServer(grpcServer, &room.Server{})
+	protoc_room.RegisterRoomGrpcServer(grpcServer, &room.RoomGrpc{})
 
 	err = grpcServer.Serve(lis)
 	if err != nil {
