@@ -74,16 +74,22 @@ func TestRoomModule(t *testing.T) {
 
 	//读取操作
 	go func() {
-		in, err := roomStreamClient.Recv()
 
-		if err != nil {
-			log.Fatalln("读入失败", err)
-		}
+		for  {
 
-		//打印数据
-		switch event := in.Event.(type) {
-		case *protoc_room.RoomStreamResponse_RoomPlayersEvent:
-			log.Println("房间中的用户", event.RoomPlayersEvent)
+			in, err := roomStreamClient.Recv()
+
+			if err != nil {
+				log.Fatalln("读入失败", err)
+			}
+
+			//打印数据
+			switch event := in.Event.(type) {
+			case *protoc_room.RoomStreamResponse_RoomPlayersEvent:
+				log.Println("房间中的用户", event.RoomPlayersEvent)
+			case *protoc_room.RoomStreamResponse_LeaveEvent:
+				log.Println("有用户离开房间了",event.LeaveEvent)
+			}
 		}
 
 

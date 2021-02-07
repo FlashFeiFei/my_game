@@ -148,6 +148,7 @@ func (c *Client) buildRoomStreamResponse(event Event) *protoc_room.RoomStreamRes
 		}
 
 	case *LeaveEvent:
+		//离开事件
 		roomStreamResponse.Event = &protoc_room.RoomStreamResponse_LeaveEvent{
 			LeaveEvent: &protoc_room.LeaveEvent{
 				Player: &protoc_room.Player{
