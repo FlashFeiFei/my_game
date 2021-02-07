@@ -27,7 +27,9 @@ func TestRoomModule(t *testing.T) {
 		log.Fatalln("连接失败", err)
 	}
 
-	//加入房间事件
+	//写入操作
+
+	//发送加入房间事件
 	joinEvent := &protoc_room.RoomStreamRequest_JoinEvent{
 		JoinEvent: &protoc_room.JoinEvent{
 			Room: nil,
@@ -46,25 +48,48 @@ func TestRoomModule(t *testing.T) {
 		log.Fatalln("加入房间失败", err)
 	}
 
-	////获取房间数据
-	//refreshRoomPlayersEvent := &protoc_room.RoomStreamRequest_RoomPlayersEvent{
-	//	RoomPlayersEvent: &protoc_room.RefreshRoomPlayersEvent{
-	//		Room:       nil,
-	//		PlayerList: nil,
-	//		Player: &protoc_room.Player{
-	//			User: &protoc_room.User{
-	//				Id: 1,
-	//			},
-	//		},
-	//	},
-	//}
-	//
-	//refreshData := &protoc_room.RoomStreamRequest{Event: refreshRoomPlayersEvent}
-	//
-	//err = roomStreamClient.Send(refreshData)
-	//if err != nil {
-	//	log.Fatalln("获取数据失败", err)
-	//}
-	//
-	//log.Println("完成")
+	log.Println("发送加入房间事件成功")
+
+	//发送获取房间事件
+	refreshRoomPlayersEvent := &protoc_room.RoomStreamRequest_RoomPlayersEvent{
+		RoomPlayersEvent: &protoc_room.RefreshRoomPlayersEvent{
+			Room:       nil,
+			PlayerList: nil,
+			Player: &protoc_room.Player{
+				User: &protoc_room.User{
+					Id: 1,
+				},
+			},
+		},
+	}
+
+	refreshData := &protoc_room.RoomStreamRequest{Event: refreshRoomPlayersEvent}
+
+	err = roomStreamClient.Send(refreshData)
+	if err != nil {
+		log.Fatalln("获取数据失败", err)
+	}
+
+	log.Println("发送获取房间事件成功")
+
+	//读取操作
+	go func() {
+		in, err := roomStreamClient.Recv()
+
+		if err != nil {
+			log.Fatalln("读入失败", err)
+		}
+
+		//打印数据
+		switch event := in.Event.(type) {
+		case *protoc_room.RoomStreamResponse_RoomPlayersEvent:
+			log.Println("房间中的用户", event.RoomPlayersEvent)
+		}
+
+
+
+	}()
+
+	stop := make(chan bool, 1)
+	<-stop
 }

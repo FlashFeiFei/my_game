@@ -1,6 +1,9 @@
 package room
 
-import protoc_room "github.com/my_game/module/room"
+import (
+	protoc_room "github.com/my_game/module/room"
+	"log"
+)
 
 func init() {
 	if room == nil {
@@ -63,12 +66,15 @@ func (r *Room) IsMaxCount() bool {
 //运行房间
 func (r *Room) Run() {
 	for {
+
+		log.Println("此时房间的信息", r.playerMap)
+
 		select {
 
 		case player := <-r.join:
 			//有用户加入房间
 			r.playerMap[player] = true
-
+			
 		case leave := <-r.leave:
 			//有用户离开房间
 			if _, ok := r.playerMap[leave]; ok {
@@ -88,11 +94,14 @@ func (r *Room) Run() {
 				playerList := make([]*protoc_room.Player, 0)
 				for roomPlayer, _ := range r.playerMap {
 					player := roomPlayer.GetPlayer()
+					log.Println("人员:", player)
 					playerList = append(playerList, &player)
 				}
 
-				event.(*RefreshRoomPlayersEvent).PlayerList = playerList
+				log.Println("当前房间存活人数:", len(r.playerMap))
+				log.Println("发送出去的人数", playerList)
 
+				event.(*RefreshRoomPlayersEvent).PlayerList = playerList
 			}
 
 			//信息广播

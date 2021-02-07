@@ -3,7 +3,6 @@ package room
 import (
 	protoc_room "github.com/my_game/module/room"
 	"io"
-	"log"
 )
 
 //玩家
@@ -44,7 +43,6 @@ func (c *Client) Close() {
 		recover()
 	}()
 
-	log.Println(c.room.playerMap)
 	close(c.send) //关闭玩家开启的send chan
 }
 
@@ -76,7 +74,8 @@ func (c *Client) ReadPump() {
 
 		case *protoc_room.RoomStreamRequest_JoinEvent:
 			//加入事件,只通知房间，不进行任何广播
-			c.room.Join() <- c //玩家加入房间
+			c.SetPlayer(*event.JoinEvent.Player) //设置用户信息
+			c.room.Join() <- c                   //玩家加入房间
 
 		case *protoc_room.RoomStreamRequest_RoomPlayersEvent:
 			//初始化事件
