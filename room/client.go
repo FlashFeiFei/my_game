@@ -136,15 +136,25 @@ func (c *Client) buildRoomStreamResponse(event Event) *protoc_room.RoomStreamRes
 
 	roomStreamResponse := new(protoc_room.RoomStreamResponse)
 
-	switch event.(type) {
+	switch sendEvent := event.(type) {
 	case *RefreshRoomPlayersEvent:
 		//刷新房间用户事件
-		refreshRoomPlayersEvent := event.(*RefreshRoomPlayersEvent)
 		roomStreamResponse.Event = &protoc_room.RoomStreamResponse_RoomPlayersEvent{
 			RoomPlayersEvent: &protoc_room.RefreshRoomPlayersEvent{
 				Room:       nil,
-				PlayerList: refreshRoomPlayersEvent.PlayerList,
-				Player:     refreshRoomPlayersEvent.Player,
+				PlayerList: sendEvent.PlayerList,
+				Player:     sendEvent.Player,
+			},
+		}
+
+	case *LeaveEvent:
+		roomStreamResponse.Event = &protoc_room.RoomStreamResponse_LeaveEvent{
+			LeaveEvent: &protoc_room.LeaveEvent{
+				Player: &protoc_room.Player{
+					User: &protoc_room.User{
+						Id: sendEvent.Player.User.Id,
+					},
+				},
 			},
 		}
 	}

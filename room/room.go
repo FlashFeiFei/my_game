@@ -74,20 +74,33 @@ func (r *Room) Run() {
 		case player := <-r.join:
 			//有用户加入房间
 			r.playerMap[player] = true
-			
+
 		case leave := <-r.leave:
 			//有用户离开房间
 			if _, ok := r.playerMap[leave]; ok {
 				//房间取消这个用户
 				delete(r.playerMap, leave)
-				//关闭的资源
+				//关闭这个用户相关的资源
 				leave.Close()
 			}
+
+			//广播一个用户离开的事件，通知其他用户刷新房间存活的用户
+			r.broadcast <- &LeaveEvent{Player: &protoc_room.Player{
+				User: &protoc_room.User{
+					Id: leave.GetPlayer().User.Id,
+				},
+			}}
 
 		case event := <-r.broadcast:
 			//广播资源,广播
 
 			switch event.(type) {
+
+			case *LeaveEvent:
+				//离开事件
+				//服务端监听到某个链接异常断开的时候，给存活的其他链接推送一个离开事件，让客户端调用刷新RefreshRoomPlayersEvent事件
+				//来刷新房间中的用户
+
 			case *RefreshRoomPlayersEvent:
 				//只通知需要初始化房间的玩家
 				//构建房间内所有的玩家数据
