@@ -1,16 +1,15 @@
-package room
+package main
 
 import (
 	"context"
 	protoc_room "github.com/my_game/module/room"
 	"google.golang.org/grpc"
 	"log"
-	"testing"
 	"time"
 )
 
-//加入房间测试
-func TestRoomModule(t *testing.T) {
+//获取链接
+func getConn() *grpc.ClientConn {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
@@ -20,6 +19,12 @@ func TestRoomModule(t *testing.T) {
 		log.Fatalln("拨号失败", err)
 	}
 
+	return conn
+}
+
+func main() {
+
+	conn := getConn()
 	client := protoc_room.NewRoomGrpcClient(conn)
 
 	roomStreamClient, err := client.Room(context.Background())
@@ -28,7 +33,6 @@ func TestRoomModule(t *testing.T) {
 		log.Fatalln("连接失败", err)
 	}
 
-
 	//用户
 	userId := time.Now().Unix()
 	user := &protoc_room.User{
@@ -36,7 +40,6 @@ func TestRoomModule(t *testing.T) {
 	}
 
 	log.Println("我的数据",user)
-
 
 	//写入操作
 
@@ -79,10 +82,10 @@ func TestRoomModule(t *testing.T) {
 
 	log.Println("发送获取房间事件成功")
 
-	//读取操作
+	//读取数据
 	go func() {
 
-		for  {
+		for {
 
 			in, err := roomStreamClient.Recv()
 
@@ -95,14 +98,15 @@ func TestRoomModule(t *testing.T) {
 			case *protoc_room.RoomStreamResponse_RoomPlayersEvent:
 				log.Println("房间中的用户", event.RoomPlayersEvent)
 			case *protoc_room.RoomStreamResponse_LeaveEvent:
-				log.Println("有用户离开房间了",event.LeaveEvent)
+				log.Println("有用户离开房间了", event.LeaveEvent)
 			}
 		}
 
-
-
 	}()
 
+	log.Println("ctr+c 退出程序")
 	stop := make(chan bool, 1)
 	<-stop
+
+	log.Println("退成成功，你能不能行，还没写好？")
 }
