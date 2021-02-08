@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+
+//游戏地址
+message UdpAddress {
+  string ip = 1;    //ip
+  string port = 2;  //端口
+}
+
+//获取游戏链接地址的请求
+message ConnAdressInfoRequest {
+
+}
+
+//获取游戏地址链接的响应
+message ConnAdressInfoResponse {
+  UdpAddress updAddress = 1;
+}
+
+
+service GameRoomGrpc {
+  //获取游戏的链接地址信息
+  rpc GetConnAdressInfo(ConnAdressInfoRequest) returns(ConnAdressInfoResponse);
+}

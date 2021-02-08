@@ -39,9 +39,6 @@ func (c *Client) GetPlayer() protoc_room.Player {
 
 //关闭玩家的资源
 func (c *Client) Close() {
-	defer func() {
-		recover()
-	}()
 
 	close(c.send) //关闭玩家开启的send chan
 }
@@ -53,8 +50,6 @@ func (c *Client) ReadPump() {
 	defer func() {
 		//释放用户
 		c.room.Leave() <- c
-		//关闭客户资源
-		c.Close()
 	}()
 
 	for {
@@ -98,9 +93,6 @@ func (c *Client) WriteRump() {
 	defer func() {
 		//释放用户
 		c.room.Leave() <- c
-
-		//关闭客户资源
-		c.Close()
 	}()
 
 	for {
